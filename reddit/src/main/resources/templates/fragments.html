@@ -1,0 +1,139 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<!-- HEADER -->
+<header th:fragment="header" class="p-3 bg-light shadow-sm">
+  <div class="container">
+    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+      <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+        <li>
+          <a th:href="@{/}" class="nav-link px-2 text-dark fs-3">
+            <i class="bi bi-chat-right-text-fill text-danger"></i>
+              <h1 class="d-inline-block h3">Rabbit</h1>
+          </a>
+        </li>
+      </ul>
+
+      <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3">
+        <input type="search" class="form-control" placeholder="Search...">
+      </form>
+
+      <div class="text-end">
+        <a type="button" class="btn btn-outline-dark me-2" th:href="@{/login}">Login</a>
+        <a type="button" class="btn btn-warning me-2" th:href="@{/signup}">Sign-up</a>
+      </div>
+    </div>
+  </div>
+</header>
+<!-- LOGIN -->
+<div th:fragment="login" class="px-5 pt-4">
+  <h2 class="display-6 mb-4">Login</h2>
+  <form th:method="GET" th:action="@{/submit-login}" class="d-flex flex-column gap-3">
+    <div class="form-floating">
+      <input th:type="text" name="name" id="name" placeholder="" class="form-control">
+      <label th:for="name" class="form-label">User name</label>
+    </div>
+    <div class="form-floating">
+      <input th:type="password" name="password" id="password" placeholder="" class="form-control">
+      <label th:for="password" class="form-label">Password</label>
+    </div>
+    <button th:type="submit" class="btn btn-success align-self-start px-5">Login</button>
+  </form>
+</div>
+<!-- SIGNUP -->
+<div th:fragment="signUp" class="px-5 pt-4">
+  <h2 class="display-6 mb-4">Sign-up</h2>
+  <form th:method="POST" th:action="@{/signup}" class="d-flex flex-column gap-3">
+    <div class="form-floating">
+      <input th:type="text" name="name" id="name" placeholder="" class="form-control">
+      <label th:for="name" class="form-label">User name</label>
+    </div>
+    <div class="form-floating">
+      <input th:type="password" name="password" id="password" placeholder="" class="form-control">
+      <label th:for="password" class="form-label">Password</label>
+    </div>
+    <div class="form-floating">
+      <input th:type="text" name="avatar" id="avatar" placeholder="" class="form-control">
+      <label th:for="avatar" class="form-label">Avatar URL</label>
+    </div>
+    <button th:type="submit" class="btn btn-success align-self-start px-5">Create user</button>
+  </form>
+</div>
+<!-- SUBMIT POST -->
+<div th:fragment="submitPost" class="px-5 pt-4">
+  <h2 class="display-6 mb-4">Submit new post</h2>
+  <form th:method="POST" th:action="@{/posts}" th:object="${post}" class="d-flex flex-column gap-3">
+    <div class="form-floating">
+      <input th:type="text" th:field="*{title}" placeholder="" class="form-control">
+      <label th:for="title" class="form-label">Title</label>
+    </div>
+    <div class="form-floating">
+      <input th:type="text" th:field="*{imgUrl}" placeholder="" class="form-control">
+      <label th:for="imgUrl" class="form-label">Image URL</label>
+    </div>
+    <div class="form-floating">
+      <textarea th:field="*{description}" placeholder="" class="form-control" style="height: 15rem"></textarea>
+      <label th:for="description">Description</label>
+    </div>
+    <button th:type="submit" class="btn btn-success align-self-start px-5">Submit</button>
+  </form>
+</div>
+<!-- POST CARD -->
+<div th:fragment="listPosts" class="d-flex flex-column gap-3">
+  <div th:each="post : ${posts}" class="card bg-light-subtle">
+    <div class="card-header d-flex align-items-center justify-content-between">
+      <div class="d-flex gap-3 align-items-center">
+        <h5 th:text="${post.title}" class="align-middle d-inline-block m-0"></h5>
+        <div th:if="${loggedUser.admin}">
+          <form th:action="@{/posts/__${post.id}__}" th:method="DELETE">
+            <button class="btn btn-outline-danger btn-sm">Delete</button>
+          </form>
+        </div>
+      </div>
+      <div class="d-flex gap-2 m-0">
+        <form th:method="PUT" th:action="@{posts/__${post.id}__}">
+          <input type="hidden" name="likeIncrease" value="true">
+          <button class="border-0 bg-transparent">
+            <i class="bi bi-arrow-up-circle-fill fs-4 text-success opacity-75"></i>
+          </button>
+        </form>
+        <p class="h5 m-0 align-self-center text-center" th:text="${post.likes}" style="min-width: 2rem"></p>
+        <form th:method="PUT" th:action="@{posts/__${post.id}__}">
+          <input type="hidden" name="likeIncrease" value="false">
+          <button class="border-0 bg-transparent">
+            <i class="bi bi-arrow-down-circle-fill fs-4 text-danger opacity-75"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+    <div class="card-body container">
+      <div class="row">
+        <div class="col">
+          <div class="mb-2">
+            <span th:text="${post.getDateTime()}" class="fst-italic badge rounded-pill bg-secondary fw-medium"></span>
+            <span th:text="'Posted by: ' + ${post.user.name}" class="fst-italic badge rounded-pill bg-dark fw-medium"></span>
+          </div>
+          <p class="card-text" th:text="${post.description}" style="text-align: justify"></p>
+        </div>
+        <div class="col">
+          <img th:src="@{${post.imgUrl}}" th:alt="${post.title}" class="align-self-center rounded img-fluid" style="max-width: 25rem">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- USER CARD -->
+<div th:fragment="userCard">
+  <div class="card">
+    <div class="card-header">
+      <span>User</span>
+    </div>
+    <div class="d-flex">
+      <img th:src="@{${loggedUser.avatar}}" alt="User avatar" class="img-fluid">
+    </div>
+    <div class="card-body">
+      <h5 class="card-title mb-0" th:text="${loggedUser.name}"></h5>
+      <span th:text="'Password: ' + ${loggedUser.password}"></span>
+    </div>
+  </div>
+</div>
+
+</html>
